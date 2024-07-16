@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Websocket Demo</title>
+  </head>
+  <body>
+    <h1>Websocket Demo</h1>
+    <input type="text" id="inputText" placeholder="Type here" />
+    <button id="submitButton">Submit</button>
+    <div id="messageBox"></div>
+    <script>
+      // generate random integer
+      function getRandomId(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // append new messages to div
+      function showMessage(message) {
+        const messageBox = document.getElementById("messageBox");
+        const messageElement = document.createElement("div");
+        messageElement.textContent = message;
+        messageBox.appendChild(messageElement);
+      }
+
+      // create a websocket connection
+      const socketId = getRandomId(1, 10000);
+      const socket = new WebSocket("ws://localhost:8000/ws/" + socketId);
+
+      // open connection handler
+      socket.addEventListener("open", (event) =>
+        showMessage("Connected to server.")
+      );
+
+      // message sending handler
+      socket.onmessage = (event) => showMessage(event.data);
+
+      // close connection handler
+      socket.addEventListener("close", (event) =>
+        showMessage("Disconnected to server.")
+      );
+
+      const inputText = document.getElementById("inputText");
+      const submitButton = document.getElementById("submitButton");
+
+      // button click handler
+      submitButton.addEventListener("click", () => {
+        const inputValue = inputText.value;
+        socket.send(inputValue);
+        inputText.value = "";
+      });
+
+      // enter handler
+      inputText.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          submitButton.click();
+          inputText.value = "";
+        }
+      });
+    </script>
+  </body>
+</html>
